@@ -567,65 +567,41 @@ def generate_checklist(data: dict, output_path: str):
 # ─────────────────────────────────────────────
 def generate_bank_letter(data: dict, output_path: str):
     """Generate the banking relationship letter as a .docx file."""
-    import subprocess, json as _json, shutil
-
-    js_script = os.path.join(SCRIPT_DIR, "generate_bank_letter.js")
-    if not os.path.exists(js_script):
-        print(f"  ⚠ Skipping bank letter — generate_bank_letter.js not found next to script")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("generate_bank_letter", os.path.join(SCRIPT_DIR, "generate_bank_letter.py"))
+    if spec is None:
+        print(f"  ⚠ Skipping bank letter — generate_bank_letter.py not found")
         return
-
-    node = shutil.which("node") or "node"
-    result = subprocess.run(
-        [node, js_script, _json.dumps(data), output_path],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print(f"  ✗ Bank letter error: {result.stderr or result.stdout}")
-    else:
-        print(f"  ✓ Bank Letter → {output_path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    mod.generate(data, output_path)
+    print(f"  ✓ Bank Letter → {output_path}")
 
 
-# ─────────────────────────────────────────────
-# EIN ANSWER SHEET  (calls Node.js generator)
-# ─────────────────────────────────────────────
 def generate_ein_sheet(data: dict, output_path: str):
     """Generate the EIN application answer sheet as a .docx file."""
-    import subprocess, json as _json, shutil
-
-    js_script = os.path.join(SCRIPT_DIR, "generate_ein_sheet.js")
-    if not os.path.exists(js_script):
-        print(f"  ⚠ Skipping EIN sheet — generate_ein_sheet.js not found next to script")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("generate_ein_sheet", os.path.join(SCRIPT_DIR, "generate_ein_sheet.py"))
+    if spec is None:
+        print(f"  ⚠ Skipping EIN sheet — generate_ein_sheet.py not found")
         return
-
-    node = shutil.which("node") or "node"
-    result = subprocess.run(
-        [node, js_script, _json.dumps(data), output_path],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print(f"  ✗ EIN sheet error: {result.stderr or result.stdout}")
-    else:
-        print(f"  ✓ EIN Sheet → {output_path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    mod.generate(data, output_path)
+    print(f"  ✓ EIN Sheet → {output_path}")
 
 
 def generate_cover_sheet(data: dict, output_path: str):
     """Generate the cover sheet as a .docx file."""
-    import subprocess, json as _json, shutil
-
-    js_script = os.path.join(SCRIPT_DIR, "generate_cover_sheet.js")
-    if not os.path.exists(js_script):
-        print(f"  ⚠ Skipping cover sheet — generate_cover_sheet.js not found next to script")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("generate_cover_sheet", os.path.join(SCRIPT_DIR, "generate_cover_sheet.py"))
+    if spec is None:
+        print(f"  ⚠ Skipping cover sheet — generate_cover_sheet.py not found")
         return
-
-    node = shutil.which("node") or "node"
-    result = subprocess.run(
-        [node, js_script, _json.dumps(data), output_path],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print(f"  ✗ Cover sheet error: {result.stderr or result.stdout}")
-    else:
-        print(f"  ✓ Cover Sheet → {output_path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    mod.generate(data, output_path)
+    print(f"  ✓ Cover Sheet → {output_path}")
 
 
 
