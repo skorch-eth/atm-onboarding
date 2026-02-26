@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATM Merchant Onboarding</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #1A3C5E;
+      --blue:      #2C5F8A;
+      --light-blue:#EAF1F8;
+      --accent:    #E67E22;
+      --gray:      #64748b;
+      --light-gray:#f8fafc;
+      --border:    #e2e8f0;
+      --text:      #1e293b;
+      --radius:    8px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f1f5f9;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header .logo-mark {
+      width: 40px; height: 40px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      color: white; font-size: 20px; font-weight: bold;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      color: white;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+    header p {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      background: var(--navy);
+      padding: 0 40px 20px;
+      display: flex;
+      gap: 0;
+    }
+    .step-pill {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748b;
+      position: relative;
+    }
+    .step-pill::after {
+      content: '';
+      position: absolute;
+      top: 50%; right: 0;
+      width: calc(100% - 120px);
+      height: 1px;
+      background: #334155;
+      transform: translateY(-50%);
+    }
+    .step-pill:last-child::after { display: none; }
+    .step-pill .dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #334155;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: #64748b;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .step-pill.active .dot { background: var(--accent); color: white; }
+    .step-pill.active { color: white; }
+    .step-pill.done .dot { background: #22c55e; color: white; }
+    .step-pill.done { color: #94a3b8; }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── Form sections ── */
+    .section {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .section.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 28px;
+    }
+    .section-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .section-header p {
+      color: var(--gray);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Form fields ── */
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .field-row.full { grid-template-columns: 1fr; }
+    .field-row.thirds { grid-template-columns: 2fr 1fr 1fr; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    label .req { color: var(--accent); margin-left: 2px; }
+    label .opt { color: #94a3b8; font-weight: 400; font-size: 11px; margin-left: 4px; }
+
+    input, select {
+      height: 44px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      width: 100%;
+    }
+    input:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(44,95,138,0.1);
+    }
+    input.error { border-color: #ef4444; }
+    .field-hint {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .field-error {
+      font-size: 11px;
+      color: #ef4444;
+      margin-top: 2px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+
+    /* ── Info box ── */
+    .info-box {
+      background: var(--light-blue);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--navy);
+      line-height: 1.6;
+    }
+    .info-box strong { font-weight: 600; }
+
+    /* ── Navigation buttons ── */
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 32px;
+    }
+    .btn {
+      height: 48px;
+      padding: 0 28px;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-primary {
+      background: var(--navy);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--blue); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--gray);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--gray); color: var(--text); }
+    .btn-submit {
+      background: var(--accent);
+      color: white;
+      min-width: 200px;
+      justify-content: center;
+    }
+    .btn-submit:hover { background: #cf6d17; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn svg { width: 18px; height: 18px; }
+
+    /* ── Success screen ── */
+    #success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .success-icon svg { width: 36px; height: 36px; color: #16a34a; }
+    #success-screen h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+    #success-screen p {
+      color: var(--gray);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto 8px;
+    }
+    .next-steps {
+      background: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin: 32px auto 0;
+      max-width: 520px;
+      text-align: left;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .next-steps h3 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+    .next-step-item {
+      display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;
+    }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--navy); color: white;
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .next-step-item p { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+    /* ── Loading overlay ── */
+    #loading {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.6);
+      z-index: 100;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    #loading.show { display: flex; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { color: white; font-size: 15px; }
+
+    @media (max-width: 600px) {
+      header { padding: 16px 20px; }
+      .progress-bar { padding: 0 20px 16px; }
+      .step-pill span { display: none; }
+      main { padding: 24px 12px 60px; }
+      .card { padding: 20px; }
+      .field-row { grid-template-columns: 1fr; }
+      .field-row.thirds { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">A</div>
+  <div>
+    <h1>ATM Merchant Onboarding</h1>
+    <p>Complete your information to receive your onboarding documents</p>
+  </div>
+</header>
+
+<div class="progress-bar">
+  <div class="step-pill active" id="pill-1">
+    <div class="dot">1</div>
+    <span>Business Info</span>
+  </div>
+  <div class="step-pill" id="pill-2">
+    <div class="dot">2</div>
+    <span>Owner Info</span>
+  </div>
+  <div class="step-pill" id="pill-3">
+    <div class="dot">3</div>
+    <span>Banking</span>
+  </div>
+  <div class="step-pill" id="pill-4">
+    <div class="dot">4</div>
+    <span>Review</span>
+  </div>
+</div>
+
+<main>
+  <form id="onboarding-form">
+
+    <!-- ── Section 1: Business Info ── -->
+    <div class="section active" id="section-1">
+      <div class="section-header">
+        <h2>Business Information</h2>
+        <p>Enter your LLC's legal name and address exactly as it will appear on state filings.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Legal Entity</div>
+
+        <div class="field-row full">
+          <div class="field">
+            <label>Legal LLC Name <span class="req">*</span></label>
+            <input type="text" name="company_name" placeholder="e.g. Sunset Vending LLC" required>
+            <span class="field-hint">Must include "LLC" or "Limited Liability Company"</span>
+            <span class="field-error">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>State of Formation <span class="req">*</span></label>
+            <select name="company_state" required>
+              <option value="">Select state...</option>
+              {% for code, name in states %}
+              <option value="{{ code }}">{{ name }}</option>
+              {% endfor %}
+            </select>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>FEIN <span class="opt">(if obtained)</span></label>
+            <input type="text" name="fein" placeholder="XX-XXXXXXX">
+            <span class="field-hint">Leave blank if not yet obtained</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Business Address</div>
+
+        <div class="field-row full">
+          <div class="field">
+            <label>Street Address <span class="req">*</span></label>
+            <input type="text" name="company_address" placeholder="123 Main St, Suite 100" required>
+            <span class="field-error">Required</span>
+          </div>
+        </div>
+        <div class="field-row thirds">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" name="company_city" required>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>State <span class="req">*</span></label>
+            <select name="location_state" required>
+              <option value="">—</option>
+              {% for code, name in states %}
+              <option value="{{ code }}">{{ code }}</option>
+              {% endfor %}
+            </select>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>ZIP <span class="req">*</span></label>
+            <input type="text" name="company_zip" placeholder="33137" maxlength="10" required>
+            <span class="field-error">Required</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <div></div>
+        <button type="button" class="btn btn-primary" onclick="nextSection(1)">
+          Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Section 2: Owner Info ── -->
+    <div class="section" id="section-2">
+      <div class="section-header">
+        <h2>Owner Information</h2>
+        <p>This will be used for all signature and authorization fields across your documents.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Managing Member / Owner</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Full Legal Name <span class="req">*</span></label>
+            <input type="text" name="owner_name" placeholder="Maria Gonzalez" required>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>Title <span class="req">*</span></label>
+            <input type="text" name="title" value="Managing Member" required>
+            <span class="field-error">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" name="merchant_email" placeholder="you@example.com" required>
+            <span class="field-hint">Your documents will be sent here</span>
+            <span class="field-error">Valid email required</span>
+          </div>
+          <div class="field">
+            <label>Phone <span class="req">*</span></label>
+            <input type="tel" name="phone" placeholder="(305) 555-0192" required>
+            <span class="field-error">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Social Security Number <span class="req">*</span></label>
+            <input type="text" name="ssn" placeholder="XXX-XX-XXXX" maxlength="11" required>
+            <span class="field-hint">Required for W-9 — transmitted securely</span>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>Date of Incorporation <span class="opt">(if known)</span></label>
+            <input type="text" name="date_of_incorporation" placeholder="MM/DD/YYYY">
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-secondary" onclick="prevSection(2)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button type="button" class="btn btn-primary" onclick="nextSection(2)">
+          Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Section 3: Banking ── -->
+    <div class="section" id="section-3">
+      <div class="section-header">
+        <h2>Banking Information</h2>
+        <p>If you haven't opened a bank account yet, just enter the bank name — you can provide account details later.</p>
+      </div>
+
+      <div class="info-box">
+        <strong>Banking Relationship Letter included:</strong> Your packet will include a letter to bring to your bank. 
+        The banker will fill in and sign the routing/account number fields on the spot.
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bank Details</div>
+
+        <div class="field-row full">
+          <div class="field">
+            <label>Bank Name <span class="req">*</span></label>
+            <input type="text" name="bank_name" placeholder="e.g. Bank of America" required>
+            <span class="field-error">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Routing Number <span class="opt">(if known)</span></label>
+            <input type="text" name="routing_number" placeholder="021000021" maxlength="9">
+          </div>
+          <div class="field">
+            <label>Account Number <span class="opt">(if known)</span></label>
+            <input type="text" name="account_number" placeholder="XXXXXXXXXX">
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-secondary" onclick="prevSection(3)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button type="button" class="btn btn-primary" onclick="nextSection(3)">
+          Continue
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Section 4: Review ── -->
+    <div class="section" id="section-4">
+      <div class="section-header">
+        <h2>Review &amp; Submit</h2>
+        <p>Confirm your information before generating your onboarding documents.</p>
+      </div>
+
+      <div class="card" id="review-card">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="info-box">
+        <strong>What happens next:</strong> We'll generate your 5 onboarding documents and email them to you immediately. 
+        A separate set of processing forms will be sent to the ACME ATM team.
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-secondary" onclick="prevSection(4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button type="submit" class="btn btn-submit" id="submit-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Generate My Documents
+        </button>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- ── Success Screen ── -->
+  <div id="success-screen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2>Documents on their way!</h2>
+    <p>Your onboarding packet has been generated and sent to <strong id="success-email"></strong>.</p>
+    <p style="color:#94a3b8; font-size:13px; margin-top:8px;">Check your spam folder if you don't see it within a few minutes.</p>
+
+    <div class="next-steps">
+      <h3>Your Next Steps</h3>
+      <div class="next-step-item">
+        <div class="step-num">1</div>
+        <p>Open the <strong>LLC Filing Guide</strong> and file your LLC in your state</p>
+      </div>
+      <div class="next-step-item">
+        <div class="step-num">2</div>
+        <p>Use the <strong>EIN Answer Sheet</strong> to apply for your EIN at irs.gov/ein</p>
+      </div>
+      <div class="next-step-item">
+        <div class="step-num">3</div>
+        <p>Bring the <strong>Banking Relationship Letter</strong> to your bank — get it signed and stamped</p>
+      </div>
+      <div class="next-step-item">
+        <div class="step-num">4</div>
+        <p>Return the signed letter to the ACME ATM team to complete your setup</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Loading overlay -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Generating your documents…</p>
+</div>
+
+<script>
+  let currentSection = 1;
+  const totalSections = 4;
+
+  // ── Navigation ──────────────────────────────────────────────────────────
+
+  function nextSection(from) {
+    if (!validateSection(from)) return;
+    if (from === 3) buildReview();
+    showSection(from + 1);
+  }
+
+  function prevSection(from) {
+    showSection(from - 1);
+  }
+
+  function showSection(n) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`section-${n}`).classList.add('active');
+
+    // Update pills
+    for (let i = 1; i <= totalSections; i++) {
+      const pill = document.getElementById(`pill-${i}`);
+      pill.classList.remove('active', 'done');
+      if (i < n) pill.classList.add('done');
+      else if (i === n) pill.classList.add('active');
+    }
+    currentSection = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Validation ──────────────────────────────────────────────────────────
+
+  function validateSection(n) {
+    const section = document.getElementById(`section-${n}`);
+    const required = section.querySelectorAll('[required]');
+    let valid = true;
+
+    required.forEach(field => {
+      const err = field.parentElement.querySelector('.field-error');
+      if (!field.value.trim()) {
+        field.classList.add('error');
+        if (err) err.classList.add('show');
+        valid = false;
+      } else if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value)) {
+        field.classList.add('error');
+        if (err) err.classList.add('show');
+        valid = false;
+      } else {
+        field.classList.remove('error');
+        if (err) err.classList.remove('show');
+      }
+    });
+
+    return valid;
+  }
+
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', () => {
+      el.classList.remove('error');
+      const err = el.parentElement.querySelector('.field-error');
+      if (err) err.classList.remove('show');
+    });
+  });
+
+  // ── Review ──────────────────────────────────────────────────────────────
+
+  function getVal(name) {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (!el) return '';
+    if (el.tagName === 'SELECT') return el.options[el.selectedIndex]?.text || el.value;
+    return el.value;
+  }
+
+  function buildReview() {
+    const rows = [
+      ['LLC Name',        getVal('company_name')],
+      ['State',           getVal('company_state')],
+      ['Address',         `${getVal('company_address')}, ${getVal('company_city')}, ${document.querySelector('[name="location_state"]').value} ${getVal('company_zip')}`],
+      ['FEIN',            getVal('fein') || 'Not yet obtained'],
+      ['Owner Name',      getVal('owner_name')],
+      ['Title',           getVal('title')],
+      ['Email',           getVal('merchant_email')],
+      ['Phone',           getVal('phone')],
+      ['Bank',            getVal('bank_name')],
+    ];
+
+    const html = `
+      <div class="card-title">Summary</div>
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        ${rows.map(([label, val]) => `
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:10px 0; color:#64748b; width:160px; font-size:13px;">${label}</td>
+            <td style="padding:10px 0; font-weight:500;">${val || '—'}</td>
+          </tr>
+        `).join('')}
+      </table>
+    `;
+    document.getElementById('review-card').innerHTML = html;
+  }
+
+  // ── Submit ──────────────────────────────────────────────────────────────
+
+  document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateSection(4)) return;
+
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('submit-btn').disabled = true;
+
+    // Sync location_state with company_state
+    const companyState = document.querySelector('[name="company_state"]').value;
+    document.querySelector('[name="location_state"]').value = companyState;
+
+    const formData = new FormData(e.target);
+
+    try {
+      const res = await fetch('/submit', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      document.getElementById('loading').classList.remove('show');
+
+      if (data.success) {
+        document.getElementById('onboarding-form').style.display = 'none';
+        document.getElementById('success-screen').style.display = 'block';
+        document.getElementById('success-email').textContent = data.merchant_email;
+      } else {
+        alert('Something went wrong: ' + (data.error || 'Please try again.'));
+        document.getElementById('submit-btn').disabled = false;
+      }
+    } catch (err) {
+      document.getElementById('loading').classList.remove('show');
+      alert('Network error — please try again.');
+      document.getElementById('submit-btn').disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
