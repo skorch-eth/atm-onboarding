@@ -33,9 +33,9 @@ from reportlab.lib.pagesizes import letter
 # ─────────────────────────────────────────────
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-EXHIBIT2_SRC = os.path.join(SCRIPT_DIR, "Exhibit_2_-_ATM_Operator___Source_of_Funds_Provider_Agreement.PDF")
-EXHIBIT3_SRC = os.path.join(SCRIPT_DIR, "Exhibit_3_-_ACH_Authorization_Form.PDF")
-W9_SRC       = os.path.join(SCRIPT_DIR, "W-9_Form__Rev__March_2024_.PDF")
+EXHIBIT2_SRC = os.path.join(SCRIPT_DIR, "Exhibit2.pdf")
+EXHIBIT3_SRC = os.path.join(SCRIPT_DIR, "Exhibit3.pdf")
+W9_SRC       = os.path.join(SCRIPT_DIR, "W9.pdf")
 
 
 # ─────────────────────────────────────────────
