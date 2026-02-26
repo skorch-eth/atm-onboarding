@@ -12,6 +12,7 @@ import json
 import uuid
 import shutil
 import smtplib
+import urllib.request
 import zipfile
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -179,24 +180,40 @@ def submit():
 # ── Email helpers ───────────────────────────────────────────────────────────
 
 def send_email(to: str, subject: str, body: str, attachments: list):
-    msg = MIMEMultipart()
-    msg["From"]    = FROM_EMAIL
-    msg["To"]      = to
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "html"))
+    """Send email via SendGrid HTTP API (avoids SMTP port blocking on Railway)."""
+    import base64, json as _json
 
+    att_list = []
     for fname, fpath in attachments:
         with open(fpath, "rb") as f:
-            part = MIMEBase("application", "octet-stream")
-            part.set_payload(f.read())
-        encoders.encode_base64(part)
-        part.add_header("Content-Disposition", f'attachment; filename="{fname}"')
-        msg.attach(part)
+            content = base64.b64encode(f.read()).decode()
+        att_list.append({
+            "content": content,
+            "filename": fname,
+            "type": "application/octet-stream",
+            "disposition": "attachment"
+        })
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASS)
-        server.sendmail(FROM_EMAIL, to, msg.as_string())
+    payload = _json.dumps({
+        "personalizations": [{"to": [{"email": to}]}],
+        "from": {"email": FROM_EMAIL},
+        "subject": subject,
+        "content": [{"type": "text/html", "value": body}],
+        "attachments": att_list
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.sendgrid.com/v3/mail/send",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {SMTP_PASS}",
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        if resp.status not in (200, 202):
+            raise Exception(f"SendGrid returned {resp.status}")
 
 
 def merchant_email_body(company_name: str, owner_name: str) -> str:
