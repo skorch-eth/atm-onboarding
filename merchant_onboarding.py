@@ -57,6 +57,24 @@ def fill_pdf_fields(src_path: str, field_values: dict) -> PdfWriter:
 # ─────────────────────────────────────────────
 # Helper: overlay text on top of a PDF page
 # ─────────────────────────────────────────────
+# ── Register cursive signature font (Lora Italic — installed Google Font) ──────
+def _register_signature_font():
+    """Register LoraItalic for cursive-style signatures. Safe to call multiple times."""
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    lora_path = "/usr/share/fonts/truetype/google-fonts/Lora-Italic-Variable.ttf"
+    if "LoraItalic" not in pdfmetrics.getRegisteredFontNames():
+        try:
+            pdfmetrics.registerFont(TTFont("LoraItalic", lora_path))
+        except Exception:
+            pass  # Fallback to Helvetica-Oblique if unavailable
+
+_register_signature_font()
+
+# Signature font name — used for all e-signature overlays
+SIG_FONT = "LoraItalic"
+
+
 def make_overlay(page_width: float, page_height: float, items: list) -> io.BytesIO:
     """
     Create a reportlab overlay canvas.
@@ -68,11 +86,15 @@ def make_overlay(page_width: float, page_height: float, items: list) -> io.Bytes
       - color: (r, g, b) tuple 0-1 (default black)
     Returns a BytesIO PDF buffer.
     """
+    from reportlab.pdfbase import pdfmetrics
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=(page_width, page_height))
 
     for item in items:
         font = item.get("font", "Helvetica")
+        # Graceful fallback if requested font isn't registered
+        if font not in pdfmetrics.getRegisteredFontNames() and font not in ["Helvetica", "Helvetica-Oblique", "Helvetica-Bold", "Times-Roman", "Times-Italic", "Courier"]:
+            font = "Helvetica-Oblique"
         size = item.get("size", 9)
         color = item.get("color", (0, 0, 0))
         c.setFont(font, size)
@@ -157,8 +179,8 @@ def generate_exhibit2(data: dict, output_path: str):
             m["fein"],
         "6 Type of Business (Sole Proprietor, Partnership, LLC, Corp, Financial Institution)":
             m.get("business_type", "LLC"),
-        "7 MerchandiseServ ces Sold where terminal is deployed":
-            m.get("merchandise_services", "ATM Services"),
+        # Field 7 (Merchandise/Services) left blank — not prefilled
+        "7 MerchandiseServ ces Sold where terminal is deployed": "",
 
         # Section D: Company info (fields 18-23)
         "18 Company Legal Name as stated on Articles of Incorporation":
@@ -219,12 +241,12 @@ def generate_exhibit2(data: dict, output_path: str):
             "font": "Helvetica", "size": 9,
             "color": (0, 0, 0)
         },
-        # E-signature in italic dark blue
+        # E-signature in cursive-style Lora Italic — visually distinct from printed name
         {
             "x": sig_x, "y": sig_y,
             "text": sig_name,
-            "font": "Helvetica-Oblique", "size": 10,
-            "color": (0, 0, 0.5)
+            "font": SIG_FONT, "size": 13,
+            "color": (0.05, 0.15, 0.45)
         },
     ]
 
@@ -319,7 +341,8 @@ def generate_exhibit3(data: dict, output_path: str):
 
         # PAI Reports section (optional)
         "25": m.get("pai_username", ""),
-        "30": m.get("email", ""),
+        # Field "30" (email) left blank — not prefilled per policy
+        "30": "",
     }
 
     writer = fill_pdf_fields(EXHIBIT3_SRC, field_values)
@@ -337,8 +360,8 @@ def generate_exhibit3(data: dict, output_path: str):
         {
             "x": sig_x, "y": sig_y,
             "text": sig_name,
-            "font": "Helvetica-Oblique", "size": 10,
-            "color": (0, 0, 0.5)
+            "font": SIG_FONT, "size": 13,
+            "color": (0.05, 0.15, 0.45)
         },
     ]
 
@@ -409,12 +432,12 @@ def generate_w9(data: dict, output_path: str):
     # PDF page height=792, image height=1000.
     # pdf_y = (1000 - image_y) * (792 / 1000) = (1000-740)*0.792 = 205.9
     overlay_items = [
-        # Signature on Sign Here line
+        # Signature on Sign Here line — cursive-style Lora Italic
         {
             "x": 120.0, "y": 208.0,
             "text": sig_name,
-            "font": "Helvetica-Oblique", "size": 11,
-            "color": (0, 0, 0.5)
+            "font": SIG_FONT, "size": 14,
+            "color": (0.05, 0.15, 0.45)
         },
         # Date to the right of signature
         {
