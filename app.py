@@ -63,33 +63,44 @@ def submit():
 
         today = datetime.today().strftime("%m/%d/%Y")
 
+        # Resolve company state (may come from company_state_display)
+        company_state = form.get("company_state") or form.get("company_state_display", "")
+
         data = {
             "date": today,
             "merchant": {
-                "company_name":       form["company_name"],
-                "dba_name":           form.get("dba_name", form["company_name"]),
-                "entity_creator_name": form["owner_name"],
-                "title":              form.get("title", "Managing Member"),
-                "company_address":    form["company_address"],
-                "company_city":       form["company_city"],
-                "company_state":      form["company_state"],
-                "company_zip":        form["company_zip"],
-                "location_address":   form.get("location_address", form["company_address"]),
-                "location_city":      form.get("location_city", form["company_city"]),
-                "location_state":     form.get("location_state", form["company_state"]),
-                "location_zip":       form.get("location_zip", form["company_zip"]),
-                "location_phone":     form["phone"],
-                "fein":               form.get("fein", ""),
-                "email":              form["merchant_email"],
-                "ssn":                form.get("ssn", ""),
-                "business_type":      "LLC",
-                "merchandise_services": "ATM Services",
+                "company_name":          form["company_name"],
+                "dba_name":              form.get("company_name"),
+                "entity_creator_name":   form["owner_name"],
+                "title":                 form.get("title", "Managing Member"),
+                "company_address":       form["company_address"],
+                "company_city":          form["company_city"],
+                "company_state":         company_state,
+                "company_zip":           form["company_zip"],
+                "location_address":      form["company_address"],
+                "location_city":         form["company_city"],
+                "location_state":        company_state,
+                "location_zip":          form["company_zip"],
+                "location_phone":        form["phone"],
+                "fein":                  "",
+                "email":                 form["merchant_email"],
+                "ssn":                   form.get("ssn", ""),
+                "dl_number":             form.get("dl_number", ""),
+                "dl_state":              form.get("dl_state", ""),
+                "owner_address":         form.get("owner_address", ""),
+                "owner_city":            form.get("owner_city", ""),
+                "owner_state":           form.get("owner_state", ""),
+                "owner_zip":             form.get("owner_zip", ""),
+                "agent_name":            form.get("agent_name", form["company_name"]),
+                "agent_address":         form.get("agent_address", form["company_address"]),
+                "business_type":         "LLC",
+                "merchandise_services":  "ATM Services",
                 "date_of_incorporation": form.get("date_of_incorporation", ""),
             },
             "bank": {
-                "bank_name":      form.get("bank_name", ""),
-                "routing_number": form.get("routing_number", ""),
-                "account_number": form.get("account_number", ""),
+                "bank_name":      "",
+                "routing_number": "",
+                "account_number": "",
             }
         }
 
@@ -232,12 +243,12 @@ def merchant_email_body(company_name: str, owner_name: str) -> str:
           <li>Review the <strong>Cover Sheet</strong> for an overview of the full process</li>
           <li>Follow the <strong>LLC Filing Guide</strong> to register your LLC in your state</li>
           <li>Use the <strong>EIN Answer Sheet</strong> to apply for your EIN at irs.gov/ein</li>
-          <li>Bring the <strong>Banking Relationship Letter</strong> to your bank to open a business checking account and get it signed and stamped</li>
-          <li>Return the signed Banking Relationship Letter to us when complete</li>
+          <li>Bring the <strong>Banking Relationship Letter</strong> to your bank to open a business checking account and have your banker sign it</li>
+          <li>Please email a photo of your bank letter signed by your banker (a stamp is not required), along with a photo of your EIN letter, to <a href="mailto:documents@acmeatm.com">documents@acmeatm.com</a></li>
         </ol>
 
         <p>If you have any questions, reply to this email or contact us directly.</p>
-        <p style="margin-top: 32px; color: #666; font-size: 13px;">— ACME ATM Onboarding Team</p>
+        <p style="margin-top: 32px; color: #666; font-size: 13px;">-Onboarding Team</p>
       </div>
     </div>
     """
