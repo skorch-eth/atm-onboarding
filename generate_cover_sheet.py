@@ -146,8 +146,7 @@ def generate(data, output_path):
     address = f"{m.get('company_address','')}, {m.get('company_city','')}, {state} {m.get('company_zip','')}"
     phone = m.get('location_phone', '')
     email = m.get('email', '')
-    fein = m.get('fein', '')
-    bank = b.get('bank_name', '')
+
 
     doc = Document()
     for section in doc.sections:
@@ -177,8 +176,6 @@ def generate(data, output_path):
         ('Principal Address', address),
         ('Phone', phone),
         ('Email', email),
-        ('FEIN', fein or 'Pending — see EIN Answer Sheet'),
-        ('Bank', bank),
         ('Date Prepared', today),
     ])
 
@@ -199,23 +196,12 @@ def generate(data, output_path):
             '□ Business checking account opened',
             '□ Routing number obtained',
             '□ Account number obtained',
-            '□ Banking Relationship Letter signed & stamped',
+            '□ Banking Relationship Letter signed by banker',
         ]),
-        (4, 'Submit Processing Forms', [
-            '□ Exhibit 2 — ATM Operator Agreement signed',
-            '□ Exhibit 3 — ACH Authorization Form signed',
-            '□ W-9 signed',
-            '□ Full packet submitted to ISO / PAI',
+        (4, 'Emailing the Bank Letter and EIN Letter', [
+            '□ Email the Bank Letter',
+            '□ Email the EIN Letter',
         ]),
-    ])
-
-    section_heading(doc, 'DOCUMENTS IN THIS PACKET')
-    checklist_table(doc, [
-        'Exhibit 2 — ATM Operator / Source of Funds Provider Agreement',
-        'Exhibit 3 — ACH Authorization Form',
-        'W-9 — Taxpayer Identification',
-        'Banking Relationship Letter',
-        'EIN Application Answer Sheet',
     ])
 
     doc.save(output_path)
