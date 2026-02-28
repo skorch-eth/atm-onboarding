@@ -331,34 +331,7 @@
     .step-body ul li::before { content: '○'; color: var(--primary); font-size: 9px; margin-top: 4px; flex-shrink: 0; }
 
     /* Email CTA */
-    .email-cta {
-      background: linear-gradient(135deg, #1c1917, #064e3b);
-      border-radius: var(--radius-lg);
-      padding: 28px 28px 24px;
-      margin-bottom: 16px;
-    }
-    .email-cta h3 {
-      font-size: 14px; font-weight: 700; color: white;
-      margin-bottom: 6px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .email-cta h3 svg { opacity: 0.7; }
-    .email-cta p { font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.65; margin-bottom: 14px; }
-    .email-chip {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: var(--radius-sm);
-      padding: 10px 16px;
-      font-size: 15px; font-weight: 700; color: white;
-      display: inline-block; margin-bottom: 14px;
-      letter-spacing: -0.2px;
-    }
-    .email-cta ul { list-style: none; }
-    .email-cta ul li {
-      font-size: 12.5px; color: rgba(255,255,255,0.65);
-      padding: 3px 0; display: flex; gap: 8px;
-    }
-    .email-cta ul li::before { content: '→'; color: var(--accent); font-weight: 600; }
+
 
     .print-btn {
       display: inline-flex; align-items: center; gap: 7px;
@@ -393,11 +366,67 @@
     .security-note svg { flex-shrink: 0; margin-top: 1px; color: var(--primary); }
 
     /* ── Autofilled input state ───────────────────────────────────────────── */
-    input.autofilled {
+    input.autofilled, select.autofilled {
       background: var(--bg-subtle);
       color: var(--ink-soft);
       border-style: dashed;
       cursor: not-allowed;
+    }
+
+    /* ── Final action callout ─────────────────────────────────────────────── */
+    .final-action-callout {
+      background: linear-gradient(135deg, #1c1917, #064e3b);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+    .final-action-header {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 800;
+      color: white; margin-bottom: 12px;
+      letter-spacing: -0.2px;
+    }
+    .final-action-header svg { color: #fbbf24; flex-shrink: 0; }
+    .final-action-intro {
+      font-size: 13px; color: rgba(255,255,255,0.65);
+      line-height: 1.6; margin-bottom: 18px;
+    }
+    .final-action-items {
+      display: flex; flex-direction: column; gap: 12px;
+      margin-bottom: 22px;
+    }
+    .final-action-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+    .final-item-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--primary); color: white;
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .final-action-item strong {
+      display: block; color: white; font-size: 14px;
+      font-weight: 700; margin-bottom: 2px;
+    }
+    .final-action-item span {
+      font-size: 12.5px; color: rgba(255,255,255,0.55);
+    }
+    .final-action-email-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px; color: rgba(255,255,255,0.7);
+    }
+    .final-action-email-row svg { color: var(--accent); flex-shrink: 0; }
+    .final-action-email-row strong {
+      color: white; font-size: 15px; font-weight: 700;
     }
 
     /* ── Error banner ─────────────────────────────────────────────────────── */
@@ -427,7 +456,7 @@
     #loading p { color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; }
 
     @media print {
-      header, .progress-wrap, .success-hero, .print-btn, .email-cta { display: none !important; }
+      header, .progress-wrap, .success-hero, .print-btn { display: none !important; }
       body { background: white; }
       .res-card { box-shadow: none; border: 1px solid #ddd; }
     }
@@ -506,9 +535,9 @@
       </div>
     </div>
 
-    <!-- Primary Address -->
+    <!-- Owner Address -->
     <div class="card">
-      <div class="card-label">Primary Address</div>
+      <div class="card-label">Owner Address</div>
       <div class="grid g-1">
         <div class="field">
           <label>Street Address <span class="req">*</span></label>
@@ -546,7 +575,7 @@
       <div class="grid g-1">
         <div class="field">
           <label>Social Security Number <span class="req">*</span></label>
-          <input type="text" name="ssn" placeholder="XXX-XX-XXXX" maxlength="11" required>
+          <input type="text" name="ssn" id="ssn" placeholder="XXX-XX-XXXX" maxlength="11" autocomplete="off" required>
           <span class="field-hint">Required to file for your EIN.</span>
           <span class="field-error">Required</span>
         </div>
@@ -633,33 +662,41 @@
     <!-- Principal place of business -->
     <div class="card">
       <div class="card-label">Principal Place of Business</div>
-      <div class="grid g-1">
-        <div class="field">
-          <label>Street Address <span class="req">*</span></label>
-          <input type="text" name="company_address" placeholder="123 Main St, Suite 100" required>
-          <span class="field-error">Required</span>
+
+      <label class="check-wrap" style="margin-bottom:16px;">
+        <input type="checkbox" id="biz-same-as-owner" onchange="toggleBizSameAsOwner()">
+        <span>Same as Owner Address</span>
+      </label>
+
+      <div id="biz-address-fields">
+        <div class="grid g-1">
+          <div class="field">
+            <label>Street Address <span class="req">*</span></label>
+            <input type="text" name="company_address" id="company_address" placeholder="123 Main St, Suite 100" required>
+            <span class="field-error">Required</span>
+          </div>
         </div>
-      </div>
-      <div class="grid g-city">
-        <div class="field">
-          <label>City <span class="req">*</span></label>
-          <input type="text" name="company_city" required>
-          <span class="field-error">Required</span>
-        </div>
-        <div class="field">
-          <label>State <span class="req">*</span></label>
-          <select name="company_state_display" required>
-            <option value="">—</option>
-            {% for code, name in states %}
-            <option value="{{ code }}">{{ code }}</option>
-            {% endfor %}
-          </select>
-          <span class="field-error">Required</span>
-        </div>
-        <div class="field">
-          <label>ZIP <span class="req">*</span></label>
-          <input type="text" name="company_zip" placeholder="33137" maxlength="10" required>
-          <span class="field-error">Required</span>
+        <div class="grid g-city">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" name="company_city" id="company_city" required>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>State <span class="req">*</span></label>
+            <select name="company_state_display" id="company_state_display" required>
+              <option value="">—</option>
+              {% for code, name in states %}
+              <option value="{{ code }}">{{ code }}</option>
+              {% endfor %}
+            </select>
+            <span class="field-error">Required</span>
+          </div>
+          <div class="field">
+            <label>ZIP <span class="req">*</span></label>
+            <input type="text" name="company_zip" id="company_zip" placeholder="33137" maxlength="10" required>
+            <span class="field-error">Required</span>
+          </div>
         </div>
       </div>
     </div>
@@ -731,45 +768,76 @@
 ════════════════════════════════════════════ -->
 <div id="success-screen">
 
+  <!-- Confirmation banner -->
   <div class="success-hero">
     <div class="check-badge">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
     </div>
     <div>
-      <h2>You're all set — documents are on their way!</h2>
-      <p>Your onboarding packet has been generated and sent to <strong id="success-email"></strong>. Check your spam folder if you don't see it within a few minutes.</p>
+      <h2>Submitted! Your documents are on their way.</h2>
+      <p>Your onboarding packet has been sent to <strong id="success-email"></strong>. Check your spam folder if you don't see it within a few minutes.</p>
     </div>
   </div>
 
-  <!-- Documents being sent -->
+  <!-- ⚠️ FINAL REQUIRED ACTION — prominent callout -->
+  <div class="final-action-callout">
+    <div class="final-action-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Final Required Step — Action Needed
+    </div>
+    <p class="final-action-intro">After completing the steps below, you must email two documents to activate your account:</p>
+    <div class="final-action-items">
+      <div class="final-action-item">
+        <div class="final-item-num">1</div>
+        <div>
+          <strong>Signed Bank Letter</strong>
+          <span>Your banker must sign the Banking Relationship Letter</span>
+        </div>
+      </div>
+      <div class="final-action-item">
+        <div class="final-item-num">2</div>
+        <div>
+          <strong>EIN Confirmation Letter</strong>
+          <span>The CP 575 letter you receive from the IRS</span>
+        </div>
+      </div>
+    </div>
+    <div class="final-action-email-row">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
+      Send photos or scans to:
+      <strong>documents@acmeatm.com</strong>
+    </div>
+  </div>
+
+  <!-- Documents emailed to you -->
   <div class="res-card">
-    <div class="res-card-title">Documents You'll Receive</div>
+    <div class="res-card-title">Documents in Your Inbox</div>
     <ul class="doc-list">
       <li>
         <div class="doc-chip pdf">PDF</div>
         <div>
           <div class="doc-name">LLC Filing Guide</div>
-          <div class="doc-desc">Step-by-step instructions to file your LLC in your state</div>
+          <div class="doc-desc">Step-by-step instructions to register your LLC with your state</div>
         </div>
       </li>
       <li>
         <div class="doc-chip doc">DOC</div>
         <div>
           <div class="doc-name">EIN Application Answer Sheet</div>
-          <div class="doc-desc">Pre-filled answers for the IRS online application</div>
+          <div class="doc-desc">Pre-filled answers for the IRS online EIN application</div>
         </div>
       </li>
       <li>
         <div class="doc-chip doc">DOC</div>
         <div>
           <div class="doc-name">Banking Relationship Letter</div>
-          <div class="doc-desc">Bring this to your bank to have it signed and stamped</div>
+          <div class="doc-desc">Bring to your bank — your banker will sign it</div>
         </div>
       </li>
     </ul>
   </div>
 
-  <!-- Next steps -->
+  <!-- Next steps — simplified -->
   <div class="res-card">
     <div class="res-card-title">Your Next Steps</div>
     <ul class="step-list">
@@ -777,65 +845,31 @@
         <div class="step-badge">1</div>
         <div class="step-body">
           <h4>File Your LLC</h4>
-          <p>Open your <strong>LLC Filing Guide</strong> and follow the steps to register with your state. The guide has the exact portal link for your state.</p>
-          <ul>
-            <li>Go to your state's filing portal (link inside the guide)</li>
-            <li>Submit your Articles of Organization</li>
-            <li>Pay the state filing fee</li>
-            <li>Save your approval documents when received</li>
-          </ul>
+          <p>Open your <strong>LLC Filing Guide</strong> and follow the instructions to register with your state's filing portal. Save your approval documents once received.</p>
         </div>
       </li>
       <li class="step-row">
         <div class="step-badge">2</div>
         <div class="step-body">
           <h4>Apply for Your EIN</h4>
-          <p>Open your <strong>EIN Application Answer Sheet</strong> — every question is pre-answered. Takes about 5 minutes.</p>
-          <ul>
-            <li>Go to <strong>irs.gov/ein</strong> and click "Apply Online Now"</li>
-            <li>Follow along — copy answers exactly as shown in the sheet</li>
-            <li>Download and save your EIN Confirmation Letter (CP 575)</li>
-          </ul>
+          <p>Go to <strong>irs.gov/ein</strong>, click "Apply Online Now," and use your <strong>EIN Answer Sheet</strong> — every question is pre-answered. Download your CP 575 confirmation letter when done.</p>
         </div>
       </li>
       <li class="step-row">
         <div class="step-badge">3</div>
         <div class="step-body">
-          <h4>Open Your Business Bank Account</h4>
-          <p>Bring your <strong>Banking Relationship Letter</strong> to your bank. Ask the banker to fill in your account details, sign, and stamp it.</p>
-          <ul>
-            <li>Bring a government-issued ID and your LLC approval documents</li>
-            <li>Ask the banker to complete, sign, and stamp the letter</li>
-            <li>Keep a copy for your records</li>
-          </ul>
+          <h4>Get Your Bank Letter Signed</h4>
+          <p>Bring your <strong>Banking Relationship Letter</strong> to your bank with a government-issued ID and your LLC approval documents. Ask your banker to complete and sign the letter.</p>
         </div>
       </li>
       <li class="step-row">
         <div class="step-badge">4</div>
         <div class="step-body">
-          <h4>Email Your Documents to Us</h4>
-          <p>Once you have both documents, email clear photos or scans to <strong>documents@acmeatm.com</strong> and we'll take it from there.</p>
-          <ul>
-            <li>Signed &amp; stamped Banking Relationship Letter</li>
-            <li>EIN Confirmation Letter (CP 575)</li>
-          </ul>
+          <h4>Email Both Documents to Us</h4>
+          <p>Send photos or scans of your <strong>signed Bank Letter</strong> and <strong>EIN Confirmation Letter (CP 575)</strong> to <strong>documents@acmeatm.com</strong> — we'll take it from there.</p>
         </div>
       </li>
     </ul>
-  </div>
-
-  <!-- Email CTA -->
-  <div class="email-cta">
-    <h3>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
-      When ready, send these two items to:
-    </h3>
-    <div class="email-chip">documents@acmeatm.com</div>
-    <ul>
-      <li>Photo or scan of your signed &amp; stamped Banking Relationship Letter</li>
-      <li>Photo or scan of your EIN Confirmation Letter (CP 575)</li>
-    </ul>
-    <p style="margin-top:14px;">Once we receive both documents, we'll activate your account and reach out with next steps. You're in good hands!</p>
   </div>
 
   <button class="print-btn" onclick="window.print()">
@@ -899,6 +933,64 @@
     }
   }
 
+  // ── SSN auto-format (XXX-XX-XXXX) ────────────────────────────────────────
+  (function() {
+    var ssnEl = document.getElementById('ssn');
+    if (!ssnEl) return;
+    ssnEl.addEventListener('input', function(e) {
+      var raw    = ssnEl.value.replace(/\D/g, '').slice(0, 9);
+      var formatted = '';
+      if (raw.length <= 3) {
+        formatted = raw;
+      } else if (raw.length <= 5) {
+        formatted = raw.slice(0,3) + '-' + raw.slice(3);
+      } else {
+        formatted = raw.slice(0,3) + '-' + raw.slice(3,5) + '-' + raw.slice(5);
+      }
+      // Preserve cursor position
+      var sel = ssnEl.selectionStart;
+      var prevLen = ssnEl.value.length;
+      ssnEl.value = formatted;
+      var diff = formatted.length - prevLen;
+      ssnEl.setSelectionRange(sel + diff, sel + diff);
+    });
+    ssnEl.addEventListener('keydown', function(e) {
+      // Allow control keys
+      if (['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key) !== -1) return;
+      // Block non-numeric, non-dash keys
+      if (!/^\d$/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+      }
+    });
+  })();
+
+  // ── PPOB "Same as Owner Address" toggle ───────────────────────────────────
+  function toggleBizSameAsOwner() {
+    var cb      = document.getElementById('biz-same-as-owner');
+    var fields  = ['company_address','company_city','company_state_display','company_zip'];
+    var sources = ['owner_address',  'owner_city',  'owner_state',           'owner_zip'];
+
+    if (cb.checked) {
+      fields.forEach(function(fId, i) {
+        var el  = document.getElementById(fId) || document.querySelector('[name="' + fId + '"]');
+        var src = document.querySelector('[name="' + sources[i] + '"]');
+        if (el && src) {
+          el.value    = src.value || '';
+          el.disabled = true;
+          el.classList.add('autofilled');
+        }
+      });
+    } else {
+      fields.forEach(function(fId) {
+        var el = document.getElementById(fId) || document.querySelector('[name="' + fId + '"]');
+        if (el) {
+          el.disabled = false;
+          el.classList.remove('autofilled');
+        }
+      });
+    }
+  }
+
   function validateSection(n) {
     var section = document.getElementById('section-' + n);
     var fields  = section.querySelectorAll('[required]');
@@ -943,11 +1035,13 @@
       document.querySelector('[name="company_state"]').value = displayState;
     }
 
-    // Re-enable disabled (autofilled) agent fields so their values are included in FormData
+    // Re-enable all disabled (autofilled) fields so values post correctly
+    ['agent_name','agent_address','company_address','company_city','company_state_display','company_zip'].forEach(function(id) {
+      var el = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
+      if (el) el.disabled = false;
+    });
     var agentName = document.getElementById('agent_name');
     var agentAddr = document.getElementById('agent_address');
-    agentName.disabled = false;
-    agentAddr.disabled = false;
 
     // If name checkbox was checked but owner name wasn't filled yet, fill it now
     if (document.getElementById('agent-name-same-as-owner').checked) {
